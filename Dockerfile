@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
 RUN a2enmod rewrite
 
 # 3. Copy source code ke /var/www/html/
-COPY . /var/www/html/
+COPY ./app/ /var/www/html/
 
 # 4. Buat folder secara manual jika belum ada (antisipasi folder kosong yang tidak ter-push ke git)
 # Lalu set izin akses (ownership & permissions)
