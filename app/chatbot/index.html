@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ePoint Chatbot</title>
+    <link rel="stylesheet" href="chatbot.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Chatbot Widget -->
+    <div id="chatbot-widget" class="chatbot-widget">
+        <div class="chatbot-toggle" id="chatbot-toggle">
+            <i class="fas fa-comments"></i>
+            <span class="notification-badge" id="notification-badge">1</span>
+        </div>
+        
+        <div class="chatbot-container" id="chatbot-container">
+            <div class="chatbot-header">
+                <div class="chatbot-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="chatbot-info">
+                    <h3>ePoint Assistant</h3>
+                    <p>Online</p>
+                </div>
+                <button class="chatbot-close" id="chatbot-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="chatbot-messages" id="chatbot-messages">
+                <div class="message bot-message">
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <p>Halo! Saya ePoint Assistant. Saya siap membantu Anda dengan informasi tentang aplikasi ePoint dan layanan konseling. Ada yang bisa saya bantu?</p>
+                        <div class="message-time">Baru saja</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chatbot-input-container">
+                <div class="quick-actions">
+                    <button class="quick-btn" data-message="Apa itu ePoint?">Apa itu ePoint?</button>
+                    <button class="quick-btn" data-message="Cara menggunakan layanan BK">Layanan BK</button>
+                    <button class="quick-btn" data-message="Cara membuat laporan kasus">Laporan Kasus</button>
+                </div>
+                <div class="input-wrapper">
+                    <input type="text" id="chatbot-input" placeholder="Ketik pesan Anda..." autocomplete="off">
+                    <button id="chatbot-send" class="send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="chatbot.js"></script>
+</body>
+</html>
