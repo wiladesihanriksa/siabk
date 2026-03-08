@@ -11,6 +11,16 @@ if (!function_exists('getAppSettings')) {
     }
 }
 
+// Fungsi Helper untuk mendapatkan Base URL Supabase
+if (!function_exists('getSupabaseBaseUrl')) {
+    function getSupabaseBaseUrl() {
+        $url = getenv('SUPABASE_URL');
+        $bucket = getenv('SUPABASE_BUCKET');
+        if (!$url || !$bucket) return null;
+        return rtrim($url, '/') . "/storage/v1/object/public/" . $bucket . "/";
+    }
+}
+
 // Fungsi untuk mendapatkan nilai pengaturan dengan default
 if (!function_exists('getSetting')) {
     function getSetting($settings, $key, $default = '') {
@@ -22,15 +32,19 @@ if (!function_exists('getSetting')) {
 if (!function_exists('getAppLogo')) {
     function getAppLogo($settings, $default = 'gambar/sistem/user.png') {
         $logo = getSetting($settings, 'app_logo');
+        $baseUrl = getSupabaseBaseUrl();
+        
         if(!empty($logo)) {
-            $logo_path = 'gambar/sistem/' . $logo;
-            // Cek apakah file ada tanpa menggunakan file_exists untuk menghindari open_basedir restriction
-            if(@fopen($logo_path, 'r')) {
-                fclose(@fopen($logo_path, 'r'));
-                return $logo_path;
-            }
+            // Jika database menyimpan URL lengkap, langsung kembalikan
+            if (strpos($logo, 'http') === 0) return $logo;
+            
+            // Jika menggunakan Supabase Cloud
+            if ($baseUrl) return $baseUrl . 'gambar/sistem/' . $logo;
+            
+            // Fallback Lokal (untuk development)
+            return 'gambar/sistem/' . $logo;
         }
-        return $default;
+        return $baseUrl ? $baseUrl . $default : $default;
     }
 }
 
@@ -38,21 +52,13 @@ if (!function_exists('getAppLogo')) {
 if (!function_exists('getAppFavicon')) {
     function getAppFavicon($settings, $default = '') {
         $favicon = getSetting($settings, 'app_favicon');
+        $baseUrl = getSupabaseBaseUrl();
 
-        // 1. Jika ada setting favicon, coba pakai dari folder gambar/sistem
         if (!empty($favicon)) {
-            $favicon_path = 'gambar/sistem/' . $favicon;
-            if (file_exists($favicon_path)) {
-                return $favicon_path;
-            }
+            if (strpos($favicon, 'http') === 0) return $favicon;
+            if ($baseUrl) return $baseUrl . 'gambar/sistem/' . $favicon;
+            return 'gambar/sistem/' . $favicon;
         }
-
-        // 2. Fallback ke favicon di root project jika ada
-        if (file_exists('favicon.ico')) {
-            return 'favicon.ico';
-        }
-
-        // 3. Terakhir, gunakan default (jika dikirim dari pemanggil)
         return $default;
     }
 }
@@ -61,15 +67,14 @@ if (!function_exists('getAppFavicon')) {
 if (!function_exists('getLoginLogo')) {
     function getLoginLogo($settings, $default = 'gambar/sistem/user.png') {
         $logo = getSetting($settings, 'login_logo');
+        $baseUrl = getSupabaseBaseUrl();
+
         if(!empty($logo)) {
-            $logo_path = 'gambar/sistem/' . $logo;
-            // Cek apakah file ada tanpa menggunakan file_exists untuk menghindari open_basedir restriction
-            if(@fopen($logo_path, 'r')) {
-                fclose(@fopen($logo_path, 'r'));
-                return $logo_path;
-            }
+            if (strpos($logo, 'http') === 0) return $logo;
+            if ($baseUrl) return $baseUrl . 'gambar/sistem/' . $logo;
+            return 'gambar/sistem/' . $logo;
         }
-        return $default;
+        return $baseUrl ? $baseUrl . $default : $default;
     }
 }
 ?>
