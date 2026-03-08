@@ -330,12 +330,22 @@ if(function_exists('getColorSettings')) {
                 $profil = mysqli_query($koneksi,"select * from user where user_id='$id_user'");
                 $profil = mysqli_fetch_assoc($profil);
                 ?>
-                <img src="../gambar/user/<?php echo $profil['user_foto']; ?>" class="user-image" alt="User Image">
+                <?php 
+				  $baseUrl = function_exists('getSupabaseBaseUrl') ? getSupabaseBaseUrl() : null;
+				  $user_foto = $profil['user_foto'];
+				  $img_src = ($baseUrl && !empty($user_foto)) ? $baseUrl . 'gambar/user/' . $user_foto : '../gambar/user/' . $user_foto;
+				?>
+				<img src="<?php echo $img_src; ?>" class="user-image" alt="User Image">
                 <span class="hidden-xs"><?php echo $profil['user_nama']; ?></span>
               </a>
               <ul class="dropdown-menu">
                 <li class="user-header">
-                  <img src="../gambar/user/<?php echo $profil['user_foto']; ?>" class="img-circle" alt="User Image">
+                  <?php 
+					  $baseUrl = function_exists('getSupabaseBaseUrl') ? getSupabaseBaseUrl() : null;
+					  $user_foto = $profil['user_foto'];
+					  $img_src = ($baseUrl && !empty($user_foto)) ? $baseUrl . 'gambar/user/' . $user_foto : '../gambar/user/' . $user_foto;
+					?>
+					<img src="<?php echo $img_src; ?>" class="user-image" alt="User Image">
                   <p>
                     <?php echo $profil['user_nama']; ?>
                     <small>Guru BK</small>

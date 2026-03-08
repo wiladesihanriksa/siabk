@@ -9,6 +9,7 @@
 
 // Include koneksi database saja, fungsi lain akan di-include oleh header yang dipilih
 include '../koneksi.php';
+include '../functions_app_settings.php';
 
 if(!isset($_SESSION)) {
     session_start();
