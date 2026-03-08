@@ -6,7 +6,7 @@
         if(isset($app_settings['app_version'])) {
           echo htmlspecialchars($app_settings['app_version']);
         } else {
-          echo '2.5.0';
+          echo '1.0.0';
         }
       ?>
     </div>

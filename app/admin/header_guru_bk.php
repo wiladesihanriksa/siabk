@@ -324,33 +324,23 @@ if(function_exists('getColorSettings')) {
             </li>
             
             <li class="dropdown user user-menu">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                <?php 
-                $id_user = $_SESSION['id'];
-                $profil = mysqli_query($koneksi,"select * from user where user_id='$id_user'");
-                $profil = mysqli_fetch_assoc($profil);
-                ?>
-                <?php 
-				  $baseUrl = function_exists('getSupabaseBaseUrl') ? getSupabaseBaseUrl() : null;
-				  $user_foto = $profil['user_foto'];
-				  $img_src = ($baseUrl && !empty($user_foto)) ? $baseUrl . 'gambar/user/' . $user_foto : '../gambar/user/' . $user_foto;
-				?>
-				<img src="<?php echo $img_src; ?>" class="user-image" alt="User Image">
-                <span class="hidden-xs"><?php echo $profil['user_nama']; ?></span>
-              </a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+				  <?php 
+					$baseUrl = function_exists('getSupabaseBaseUrl') ? getSupabaseBaseUrl() : null;
+					$user_foto = $profil['user_foto'];
+					$img_src = (empty($user_foto)) ? "../gambar/sistem/user.png" : ($baseUrl ? $baseUrl . 'gambar/user/' . $user_foto : '../gambar/user/' . $user_foto);
+				  ?>
+				  <img src="<?php echo $img_src; ?>" class="user-image" alt="User Image" style="object-fit:cover;">
+				  <span class="hidden-xs"><?php echo $profil['user_nama']; ?></span>
+				</a>
               <ul class="dropdown-menu">
-                <li class="user-header">
-                  <?php 
-					  $baseUrl = function_exists('getSupabaseBaseUrl') ? getSupabaseBaseUrl() : null;
-					  $user_foto = $profil['user_foto'];
-					  $img_src = ($baseUrl && !empty($user_foto)) ? $baseUrl . 'gambar/user/' . $user_foto : '../gambar/user/' . $user_foto;
-					?>
-					<img src="<?php echo $img_src; ?>" class="user-image" alt="User Image">
-                  <p>
-                    <?php echo $profil['user_nama']; ?>
-                    <small>Guru BK</small>
-                  </p>
-                </li>
+				<li class="user-header">
+				  <img src="<?php echo $img_src; ?>" class="img-circle" alt="User Image" style="object-fit:cover;">
+				  <p>
+					<?php echo $profil['user_nama']; ?>
+					<small>Guru BK</small>
+				  </p>
+				</li>
                 <li class="user-footer">
                   <div class="pull-left">
                     <a href="profil.php" class="btn btn-default btn-flat">Profile</a>
@@ -368,20 +358,26 @@ if(function_exists('getColorSettings')) {
 
     <aside class="main-sidebar">
       <section class="sidebar">
-        <div class="user-panel">
-          <div class="pull-left image">
-            <?php 
-            $id_user = $_SESSION['id'];
-            $profil = mysqli_query($koneksi,"select * from user where user_id='$id_user'");
-            $profil = mysqli_fetch_assoc($profil);
-            ?>
-            <img src="../gambar/user/<?php echo $profil['user_foto']; ?>" class="img-circle" alt="User Image">
-          </div>
-          <div class="pull-left info">
-            <p><?php echo $profil['user_nama'] ?></p>
-            <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
-          </div>
-        </div>
+		<div class="user-panel">
+		  <div class="pull-left image">
+			<?php 
+			$baseUrl = function_exists('getSupabaseBaseUrl') ? getSupabaseBaseUrl() : null;
+			$user_foto = $profil['user_foto'];
+			
+			// Logika URL: Jika ada baseUrl (di Render) gunakan Supabase, jika tidak gunakan lokal
+			if (empty($user_foto)) {
+				$img_src = "../gambar/sistem/user.png";
+			} else {
+				$img_src = $baseUrl ? $baseUrl . 'gambar/user/' . $user_foto : "../gambar/user/" . $user_foto;
+			}
+			?>
+			<img src="<?php echo $img_src; ?>" class="img-circle" alt="User Image" style="height:45px; width:45px; object-fit:cover;">
+		  </div>
+		  <div class="pull-left info">
+			<p><?php echo $profil['user_nama'] ?></p>
+			<a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+		  </div>
+		</div>
 
         <ul class="sidebar-menu" data-widget="tree">
           <li class="header">GURU BK NAVIGATION</li>
