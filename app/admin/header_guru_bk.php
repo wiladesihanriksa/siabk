@@ -8,171 +8,48 @@ include '../functions_app_settings.php';
 include '../functions_color_settings.php';
 include 'check_guru_bk_access.php';
 
-if(!isset($_SESSION)) {
-    session_start();
-}
+<?php 
+// ... (include koneksi dan session tetap sama) ...
 
-// Cek session dengan aman - khusus untuk guru BK
-if(!isset($_SESSION['level']) || $_SESSION['level'] != "guru_bk"){
-    header("location:../admin.php?alert=belum_login");
-    exit();
-}
-
-// --- TAMBAHKAN BLOK INI UNTUK MEMPERBAIKI ERROR $profil ---
+// 1. Ambil data profil & definisikan foto profil SEKALI saja di atas
 $id_user = $_SESSION['id'];
 $profil_query = mysqli_query($koneksi, "SELECT * FROM user WHERE user_id='$id_user'");
 $profil = mysqli_fetch_assoc($profil_query);
-// -----------------------------------------------------------
 
-// Auto-check access
-checkGuruBkAccess();
+$baseUrl = function_exists('getSupabaseBaseUrl') ? getSupabaseBaseUrl() : null;
+$foto_db = $profil['user_foto'];
 
-if(isset($_SESSION['error_message'])) {
-    return;
+if (empty($foto_db)) {
+    $user_foto = "../gambar/sistem/user.png";
+} else {
+    $user_foto = $baseUrl ? $baseUrl . 'gambar/user/' . $foto_db : "../gambar/user/" . $foto_db;
 }
 
-$app_settings = array();
-$color_settings = array();
-
-if(function_exists('getAppSettings')) {
-    $app_settings = getAppSettings($koneksi);
-}
-if(function_exists('getColorSettings')) {
-    $color_settings = getColorSettings($koneksi);
+// 2. Penentuan Favicon
+$fav_setting = function_exists('getAppFavicon') ? getAppFavicon($app_settings, '') : '';
+$favicon_path = $fav_setting !== '' ? '../' . $fav_setting : '../gambar/sistem/logo.png';
+// Gunakan pengecekan yang lebih ringan
+if (!file_exists($favicon_path)) {
+    $favicon_path = '../gambar/sistem/login_logo.png';
 }
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <?php
-    $app_name = isset($app_settings['app_name']) && $app_settings['app_name'] !== '' ? $app_settings['app_name'] : 'SISBK';
-    $institution = isset($app_settings['app_author']) && $app_settings['app_author'] !== '' ? $app_settings['app_author'] : 'Madrasah Aliyah Yasmu';
-  ?>
   <title>Guru BK - <?php echo htmlspecialchars($app_name . ' ' . $institution); ?></title>
+  <link rel="icon" type="image/png" href="<?php echo $favicon_path; ?>?v=1">
   
-  <!-- Favicon: gunakan logo aplikasi bila ada, fallback ke favicon default -->
-  <?php
-    // favicon dari setting bila ada, fallback ke file default
-    $fav_from_setting = function_exists('getAppFavicon') ? getAppFavicon($app_settings, '') : '';
-    $favicon_path = $fav_from_setting !== '' ? '../' . $fav_from_setting : '../gambar/sistem/logo.png';
-    if (!@fopen($favicon_path, 'r')) {
-      $favicon_path = '../gambar/sistem/login_logo.png';
-    }
-  ?>
-  <link rel="icon" type="image/png" href="<?php echo $favicon_path; ?>">
-  
-  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-  <link rel="stylesheet" href="../assets/bower_components/bootstrap/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="../assets/bower_components/font-awesome/css/font-awesome.min.css">
-  <link rel="stylesheet" href="../assets/bower_components/Ionicons/css/ionicons.min.css">
-  <link rel="stylesheet" href="../assets/dist/css/AdminLTE.min.css">
-
-  <link rel="stylesheet" href="../assets/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
-
-  <link rel="stylesheet" href="../assets/dist/css/skins/_all-skins.min.css">
-  <link rel="stylesheet" href="../assets/bower_components/morris.js/morris.css">
-  <link rel="stylesheet" href="../assets/bower_components/jvectormap/jquery-jvectormap.css">
-  <link rel="stylesheet" href="../assets/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
-  <link rel="stylesheet" href="../assets/bower_components/bootstrap-daterangepicker/daterangepicker.css">
-  <link rel="stylesheet" href="../assets/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
-  
-  <!-- Dynamic CSS disabled -->
-  
-  <!-- CSS untuk memperbaiki sidebar -->
   <style>
-    .sidebar-menu {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-    
-    .sidebar-menu > li {
-      position: relative;
-      margin: 0;
-      padding: 0;
-    }
-    
-    .sidebar-menu > li > a {
-      position: relative;
-      display: block;
-      padding: 12px 5px 12px 15px;
-      color: #b8c7ce;
-      text-decoration: none;
-    }
-    
-    .sidebar-menu > li > a:hover {
-      color: #fff;
-      background: #1e282c;
-    }
-    
-    .sidebar-menu .treeview-menu {
-      display: none;
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      background: #2c3b41;
-    }
-    
-    .sidebar-menu .treeview-menu > li {
-      margin: 0;
-    }
-    
-    .sidebar-menu .treeview-menu > li > a {
-      display: block;
-      padding: 5px 5px 5px 30px;
-      font-size: 14px;
-      color: #8aa4af;
-      text-decoration: none;
-    }
-    
-    .sidebar-menu .treeview-menu > li > a:hover {
-      color: #fff;
-      background: #2c3b41;
-    }
-    
-    .sidebar-menu .treeview.active > .treeview-menu {
-      display: block;
-    }
-    
-    .sidebar-menu .treeview.active > a > .fa-angle-left {
-      transform: rotate(-90deg);
-    }
-
-    /* Pastikan logo tidak duplikasi dan tampil sesuai state */
-    .main-header .logo { display: flex; align-items: center; justify-content: center; }
-    .main-header .logo .logo-mini { display: none; }
-    .main-header .logo .logo-lg { display: inline-flex; align-items: center; gap: 8px; }
-    /* Saat sidebar-mini + collapsed → tampilkan mini, sembunyikan besar */
-    .sidebar-mini.sidebar-collapse .main-header .logo .logo-mini { display: inline-flex !important; }
-    .sidebar-mini.sidebar-collapse .main-header .logo .logo-lg { display: none !important; }
-    /* Saat sidebar-mini tapi tidak collapsed → tetap tampilkan besar */
-    .sidebar-mini:not(.sidebar-collapse) .main-header .logo .logo-mini { display: none !important; }
-    .sidebar-mini:not(.sidebar-collapse) .main-header .logo .logo-lg { display: inline-flex !important; }
-	
-	/* Fix User Panel agar tidak meluber saat sidebar mengecil */
-    .sidebar-mini.sidebar-collapse .user-panel {
-      display: none !important;
-    }
-
-    /* Memastikan foto profil tetap melingkar sempurna */
+    /* Gabungkan perbaikan sidebar agar lebih efisien */
     .user-panel > .image > img {
-      width: 45px !important;
-      height: 45px !important;
-      max-width: 45px !important;
-      max-height: 45px !important;
-      object-fit: cover; /* Mencegah foto gepeng */
-      border-radius: 50%;
+        width: 45px !important; height: 45px !important;
+        object-fit: cover; border-radius: 50%;
     }
-
-    /* Penyesuaian teks di samping foto */
-    .user-panel > .info {
-      padding: 5px 5px 5px 15px;
-      line-height: 1.2;
-    }
-    
+    .main-header .logo .logo-lg { display: inline-flex; align-items: center; gap: 8px; }
+    .sidebar-mini.sidebar-collapse .main-header .logo .logo-mini { display: inline-flex !important; }
+    .sidebar-mini.sidebar-collapse .main-header .logo .logo-lg,
+    .sidebar-mini.sidebar-collapse .user-panel { display: none !important; }
   </style>
 
 

@@ -49,15 +49,20 @@ $user_foto = (!empty($profil['user_foto'])) ?
   ?>
   <title>Administrator - <?php echo htmlspecialchars($app_name . ' ' . $institution); ?></title>
   
-  <?php
-    $fav_from_setting = function_exists('getAppFavicon') ? getAppFavicon($app_settings, '') : '';
-    $favicon_path = $fav_from_setting !== '' ? '../' . $fav_from_setting : '../gambar/sistem/logo.png';
-    // Fallback sederhana jika file tidak ditemukan
-    if (strpos($favicon_path, 'http') === false && !file_exists($favicon_path)) {
-      $favicon_path = '../gambar/sistem/login_logo.png';
-    }
-  ?>
-  <link rel="icon" type="image/png" href="<?php echo $favicon_path; ?>">
+<?php
+  // Ambil favicon dari setting
+  $fav_from_setting = function_exists('getAppFavicon') ? getAppFavicon($app_settings, '') : '';
+  
+  // Tentukan path utama
+  $favicon_path = $fav_from_setting !== '' ? '../' . $fav_from_setting : '../gambar/sistem/logo.png';
+  
+  // Gunakan @fopen (seperti di Guru BK) untuk validasi keberadaan file
+  // Jika gagal dibuka, lempar ke fallback login_logo.png
+  if (!@fopen($favicon_path, 'r')) {
+    $favicon_path = '../gambar/sistem/login_logo.png';
+  }
+?>
+<link rel="icon" type="image/png" href="<?php echo $favicon_path; ?>?v=1">
   
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <link rel="stylesheet" href="../assets/bower_components/bootstrap/dist/css/bootstrap.min.css">
