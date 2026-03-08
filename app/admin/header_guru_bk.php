@@ -1,41 +1,63 @@
 <?php 
-// =====================================================
-// HEADER GURU BK - 2025
-// =====================================================
+// 1. WAJIB: Jalankan session paling pertama sebelum kode lain
+if(!isset($_SESSION)) {
+    session_start();
+}
 
+// 2. Sertakan file pendukung
 include '../koneksi.php';
 include '../functions_app_settings.php';
 include '../functions_color_settings.php';
 include 'check_guru_bk_access.php';
 
-// 1. Ambil data profil & definisikan foto profil SEKALI saja di atas
-$id_user = $_SESSION['id'];
-$profil_query = mysqli_query($koneksi, "SELECT * FROM user WHERE user_id='$id_user'");
-$profil = mysqli_fetch_assoc($profil_query);
-
-$baseUrl = function_exists('getSupabaseBaseUrl') ? getSupabaseBaseUrl() : null;
-$foto_db = $profil['user_foto'];
-
-if (empty($foto_db)) {
-    $user_foto = "../gambar/sistem/user.png";
-} else {
-    $user_foto = $baseUrl ? $baseUrl . 'gambar/user/' . $foto_db : "../gambar/user/" . $foto_db;
+// 3. Cek keamanan session
+if(!isset($_SESSION['level']) || $_SESSION['level'] != "guru_bk"){
+    header("location:../admin.php?alert=belum_login");
+    exit();
 }
 
-// 2. Penentuan Favicon
-$fav_setting = function_exists('getAppFavicon') ? getAppFavicon($app_settings, '') : '';
-$favicon_path = $fav_setting !== '' ? '../' . $fav_setting : '../gambar/sistem/logo.png';
-// Gunakan pengecekan yang lebih ringan
-if (!file_exists($favicon_path)) {
-    $favicon_path = '../gambar/sistem/login_logo.png';
+// 4. Inisialisasi variabel agar tidak "Undefined variable"
+$app_settings = array();
+$color_settings = array();
+
+if(function_exists('getAppSettings')) {
+    $app_settings = getAppSettings($koneksi);
 }
+if(function_exists('getColorSettings')) {
+    $color_settings = getColorSettings($koneksi);
+}
+
+// 5. Ambil data profil setelah variabel $koneksi tersedia
+$id_user = $_SESSION['id'] ?? null;
+$profil = array();
+if ($id_user) {
+    $profil_query = mysqli_query($koneksi, "SELECT * FROM user WHERE user_id='$id_user'");
+    $profil = mysqli_fetch_assoc($profil_query) ?? array();
+}
+
+// Jalankan fungsi proteksi tambahan
+checkGuruBkAccess();
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <?php
+    $app_name = isset($app_settings['app_name']) && $app_settings['app_name'] !== '' ? $app_settings['app_name'] : 'SISBK';
+    $institution = isset($app_settings['app_author']) && $app_settings['app_author'] !== '' ? $app_settings['app_author'] : 'Sekolah';
+  ?>
   <title>Guru BK - <?php echo htmlspecialchars($app_name . ' ' . $institution); ?></title>
-  <link rel="icon" type="image/png" href="<?php echo $favicon_path; ?>?v=1">
+  
+  <?php
+    $fav_from_setting = function_exists('getAppFavicon') ? getAppFavicon($app_settings, '') : '';
+    $favicon_path = $fav_from_setting !== '' ? '../' . $fav_from_setting : '../gambar/sistem/logo.png';
+    // Gunakan file_exists untuk kestabilan
+    if (strpos($favicon_path, 'http') === false && !file_exists($favicon_path)) {
+      $favicon_path = '../gambar/sistem/login_logo.png';
+    }
+  ?>
+  <link rel="icon" type="image/png" href="<?php echo $favicon_path; ?>">
   
   <style>
     /* Gabungkan perbaikan sidebar agar lebih efisien */
