@@ -33,44 +33,54 @@ if(isset($_POST['update_profil'])) {
 }
 
 // Proses upload foto profil
+// Proses upload foto profil ke Supabase
 if(isset($_POST['update_foto'])) {
-    $upload_dir = '../gambar/user/';
-    if (!file_exists($upload_dir)) {
-        mkdir($upload_dir, 0777, true);
-    }
-    
     if(isset($_FILES['foto_profil']) && $_FILES['foto_profil']['error'] == 0) {
-        $file_name = $_FILES['foto_profil']['name'];
         $file_tmp = $_FILES['foto_profil']['tmp_name'];
-        $file_size = $_FILES['foto_profil']['size'];
+        $file_name = $_FILES['foto_profil']['name'];
         $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
         
         $allowed_ext = array('jpg', 'jpeg', 'png', 'gif');
         
         if(in_array($file_ext, $allowed_ext)) {
-            if($file_size < 5000000) { // 5MB
-                $new_file_name = 'admin_' . $id_user . '_' . time() . '.' . $file_ext;
-                $upload_path = $upload_dir . $new_file_name;
-                
-                if(move_uploaded_file($file_tmp, $upload_path)) {
-                    // Hapus foto lama jika ada
-                    if(!empty($profil['user_foto']) && file_exists('../gambar/user/' . $profil['user_foto'])) {
-                        unlink('../gambar/user/' . $profil['user_foto']);
-                    }
-                    
-                    // Update database
-                    $update_foto = "UPDATE user SET user_foto = '$new_file_name' WHERE user_id = '$id_user'";
-                    if(mysqli_query($koneksi, $update_foto)) {
-                        echo "<script>alert('Foto profil berhasil diperbarui!'); window.location='profil.php';</script>";
-                    }
-                } else {
-                    echo "<script>alert('Gagal mengupload foto!');</script>";
+            // Konfigurasi Supabase dari Environment Variables
+            $s_url = getenv('SUPABASE_URL');
+            $s_key = getenv('SUPABASE_KEY'); // Gunakan Service Role Key
+            $s_bucket = getenv('SUPABASE_BUCKET');
+            
+            $new_file_name = 'admin_' . $id_user . '_' . time() . '.' . $file_ext;
+            $path_in_supabase = 'gambar/user/' . $new_file_name;
+
+            // Baca file konten
+            $file_content = file_get_contents($file_tmp);
+            $mime_type = mime_content_type($file_tmp);
+
+            // cURL untuk Upload ke Supabase Storage
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, rtrim($s_url, '/') . "/storage/v1/object/" . $s_bucket . "/" . $path_in_supabase);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $file_content);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                "Authorization: Bearer " . $s_key,
+                "Content-Type: " . $mime_type
+            ));
+
+            $result = curl_exec($ch);
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if($http_code == 200) {
+                // Update database hanya dengan nama filenya
+                $update_foto = "UPDATE user SET user_foto = '$new_file_name' WHERE user_id = '$id_user'";
+                if(mysqli_query($koneksi, $update_foto)) {
+                    echo "<script>alert('Foto profil berhasil diunggah ke Supabase!'); window.location='profil.php';</script>";
                 }
             } else {
-                echo "<script>alert('Ukuran file terlalu besar! Maksimal 5MB.');</script>";
+                echo "<script>alert('Gagal upload ke Cloud. Error: " . $http_code . "');</script>";
             }
         } else {
-            echo "<script>alert('Format file tidak didukung! Gunakan JPG, PNG, atau GIF.');</script>";
+            echo "<script>alert('Format tidak didukung!');</script>";
         }
     }
 }
@@ -98,17 +108,18 @@ $profil = mysqli_fetch_assoc($profil);
       <div class="col-md-4">
         <div class="box box-primary">
           <div class="box-body box-profile">
-            <div class="text-center">
-              <?php if(!empty($profil['user_foto'])): ?>
-                <img class="profile-user-img img-responsive img-circle" 
-                     src="../gambar/user/<?php echo $profil['user_foto']; ?>" 
-                     alt="User profile picture" style="width: 100px; height: 100px; object-fit: cover;">
-              <?php else: ?>
-                <img class="profile-user-img img-responsive img-circle" 
-                     src="../gambar/sistem/user.png" 
-                     alt="User profile picture" style="width: 100px; height: 100px; object-fit: cover;">
-              <?php endif; ?>
-            </div>
+			<div class="text-center">
+			  <?php 
+				$baseUrl = function_exists('getSupabaseBaseUrl') ? getSupabaseBaseUrl() : '../';
+				if(!empty($profil['user_foto'])): 
+				  // Jika user_foto berisi URL lengkap gunakan langsung, jika tidak gabungkan dengan base URL
+				  $img_src = (strpos($profil['user_foto'], 'http') === 0) ? $profil['user_foto'] : $baseUrl . 'gambar/user/' . $profil['user_foto'];
+			  ?>
+				<img class="profile-user-img img-responsive img-circle" src="<?php echo $img_src; ?>" style="width: 100px; height: 100px; object-fit: cover;">
+			  <?php else: ?>
+				<img class="profile-user-img img-responsive img-circle" src="../gambar/sistem/user.png" style="width: 100px; height: 100px; object-fit: cover;">
+			  <?php endif; ?>
+			</div>
 
             <h3 class="profile-username text-center"><?php echo $profil['user_nama']; ?></h3>
 
