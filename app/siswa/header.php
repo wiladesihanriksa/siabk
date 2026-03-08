@@ -10,7 +10,7 @@ if(!isset($_SESSION['level']) || $_SESSION['level'] != "siswa"){
   exit();
 }
 
-// Ambil pengaturan aplikasi dan warna
+// Ambil pengaturan aplikasi
 $app_settings = getAppSettings($koneksi);
 $color_settings = getColorSettings($koneksi);
 ?>
@@ -20,31 +20,53 @@ $color_settings = getColorSettings($koneksi);
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-  <title><?php echo getSetting($app_settings, 'app_name', 'Siswa - E-Point'); ?></title>
+  <title><?php echo getSetting($app_settings, 'app_name', 'Siswa - Sistem Informasi E-Point Siswa MAN 2 Semarang'); ?></title>
   
+  <!-- Favicon: gunakan favicon dari setting bila ada, fallback ke file default -->
   <?php
-    // Logika Favicon Berjenjang (Fallback)
+    // favicon dari setting bila ada, fallback ke file default
     $fav_from_setting = getAppFavicon($app_settings, '');
-    $favicon_path = ($fav_from_setting !== '') ? '../' . $fav_from_setting : '../gambar/sistem/favicon.png';
-    
-    // Validasi file fisik
-    if (!file_exists($favicon_path)) {
-        $favicon_path = '../gambar/sistem/logo.png';
-        if (!file_exists($favicon_path)) {
+    if($fav_from_setting !== '') {
+      $favicon_path = '../' . $fav_from_setting;
+      // Cek apakah file ada
+      if (!@fopen($favicon_path, 'r')) {
+        // Jika favicon dari setting tidak ditemukan, coba fallback
+        $favicon_path = '../gambar/sistem/favicon.png';
+        if (!@fopen($favicon_path, 'r')) {
+          $favicon_path = '../gambar/sistem/logo.png';
+          if (!@fopen($favicon_path, 'r')) {
             $favicon_path = '../gambar/sistem/login_logo.png';
+          }
         }
+      }
+    } else {
+      // Jika tidak ada setting, gunakan fallback
+      $favicon_path = '../gambar/sistem/favicon.png';
+      if (!@fopen($favicon_path, 'r')) {
+        $favicon_path = '../gambar/sistem/logo.png';
+        if (!@fopen($favicon_path, 'r')) {
+          $favicon_path = '../gambar/sistem/login_logo.png';
+        }
+      }
     }
-
+    
+    // Tentukan type berdasarkan ekstensi
     $favicon_ext = strtolower(pathinfo($favicon_path, PATHINFO_EXTENSION));
-    $favicon_type = ($favicon_ext == 'png') ? 'image/png' : 'image/x-icon';
+    $favicon_type = 'image/x-icon';
+    if($favicon_ext == 'png') {
+      $favicon_type = 'image/png';
+    } elseif($favicon_ext == 'jpg' || $favicon_ext == 'jpeg') {
+      $favicon_type = 'image/jpeg';
+    }
   ?>
   <link rel="icon" type="<?php echo $favicon_type; ?>" href="<?php echo $favicon_path; ?>">
-
   <link rel="stylesheet" href="../assets/bower_components/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="../assets/bower_components/font-awesome/css/font-awesome.min.css">
   <link rel="stylesheet" href="../assets/bower_components/Ionicons/css/ionicons.min.css">
   <link rel="stylesheet" href="../assets/dist/css/AdminLTE.min.css">
+
   <link rel="stylesheet" href="../assets/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
+
   <link rel="stylesheet" href="../assets/dist/css/skins/_all-skins.min.css">
   <link rel="stylesheet" href="../assets/bower_components/morris.js/morris.css">
   <link rel="stylesheet" href="../assets/bower_components/jvectormap/jquery-jvectormap.css">
@@ -55,43 +77,49 @@ $color_settings = getColorSettings($koneksi);
   
   <?php echo generateDynamicCSS($color_settings); ?>
   
+  <!-- CSS untuk logo -->
   <style>
-    /* Sinkronisasi Logo Style dengan Admin */
-    .main-header .logo { display: flex !important; align-items: center; justify-content: center; }
+    /* Pastikan logo tidak duplikasi dan tampil sesuai state */
+    .main-header .logo { display: flex; align-items: center; justify-content: center; }
     .main-header .logo .logo-mini { display: none; }
     .main-header .logo .logo-lg { display: inline-flex; align-items: center; gap: 8px; }
+    /* Saat sidebar-mini + collapsed → tampilkan mini, sembunyikan besar */
     .sidebar-mini.sidebar-collapse .main-header .logo .logo-mini { display: inline-flex !important; }
     .sidebar-mini.sidebar-collapse .main-header .logo .logo-lg { display: none !important; }
-    
-    /* Perbaikan Visual User Panel Sidebar */
-    .user-panel > .image > img { height: 45px !important; width: 45px !important; object-fit: cover; }
-    .sidebar-menu > li > a { text-transform: uppercase; font-size: 12px; }
+    /* Saat sidebar-mini tapi tidak collapsed → tetap tampilkan besar */
+    .sidebar-mini:not(.sidebar-collapse) .main-header .logo .logo-mini { display: none !important; }
+    .sidebar-mini:not(.sidebar-collapse) .main-header .logo .logo-lg { display: inline-flex !important; }
   </style>
-</head>
 
-<body class="hold-transition <?php echo getSetting($color_settings, 'theme_skin', 'skin-green'); ?> sidebar-mini">
+</head>
+<body class="hold-transition skin-green sidebar-mini">
   <div class="wrapper">
 
     <header class="main-header">
       <?php
+        // Logo dari setting bila tersedia, fallback ke file default
         $logo_from_setting = getAppLogo($app_settings, 'gambar/sistem/logo.png');
         $app_logo_path = '../' . $logo_from_setting;
-        if (!file_exists($app_logo_path)) {
+        // Cek apakah file ada, jika tidak gunakan fallback
+        if (!@fopen($app_logo_path, 'r')) {
+          $app_logo_path = '../gambar/sistem/login_logo.png';
+          if (!@fopen($app_logo_path, 'r')) {
             $app_logo_path = '../gambar/sistem/logo.png';
+          }
         }
         $app_name = getSetting($app_settings, 'app_name', 'E-<b>Point</b>');
       ?>
-      
       <a href="index.php" class="logo">
-        <span class="logo-mini">
-          <img src="<?php echo $app_logo_path; ?>" alt="L" style="max-height:30px; width:auto;"/>
+        <!-- Tampilkan logo pada sidebar mini -->
+        <span class="logo-mini" style="display:flex;align-items:center;justify-content:center;">
+          <img src="<?php echo $app_logo_path; ?>" alt="Logo" style="max-height:30px; width:auto; display:block;"/>
         </span>
-        <span class="logo-lg">
-          <img src="<?php echo $app_logo_path; ?>" alt="Logo" style="max-height:40px; width:auto;"/>
-          <b><?php echo $app_name; ?></b>
+        <!-- Tampilkan logo penuh pada tampilan normal -->
+        <span class="logo-lg" style="display:flex;align-items:center;gap:10px;">
+          <img src="<?php echo $app_logo_path; ?>" alt="Logo" style="max-height:40px; width:auto; display:block;"/>
+          <b><?php echo htmlspecialchars($app_name); ?></b>
         </span>
       </a>
-
       <nav class="navbar navbar-static-top">
         <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
           <span class="sr-only">Toggle navigation</span>
@@ -99,28 +127,8 @@ $color_settings = getColorSettings($koneksi);
 
         <div class="navbar-custom-menu">
           <ul class="nav navbar-nav">
-            <li class="dropdown user user-menu">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                <img src="../gambar/sistem/user.png" class="user-image" alt="User Image">
-                <span class="hidden-xs">Siswa: <?php echo $_SESSION['nama']; ?></span>
-              </a>
-              <ul class="dropdown-menu">
-                <li class="user-header" style="height: auto; padding-bottom: 15px;">
-                  <img src="../gambar/sistem/user.png" class="img-circle" alt="User Image">
-                  <p>
-                    <?php echo $_SESSION['nama']; ?>
-                    <small>Level: Siswa Aktif</small>
-                  </p>
-                </li>
-                <li class="user-footer">
-                  <div class="pull-left">
-                    <a href="profil.php" class="btn btn-default btn-flat">Profil</a>
-                  </div>
-                  <div class="pull-right">
-                    <a href="logout.php" class="btn btn-danger btn-flat">Logout</a>
-                  </div>
-                </li>
-              </ul>
+            <li>
+              <a href="logout.php"><i class="fa fa-sign-out"></i> LOGOUT</a>
             </li>
           </ul>
         </div>
@@ -131,67 +139,100 @@ $color_settings = getColorSettings($koneksi);
       <section class="sidebar">
         <div class="user-panel">
           <div class="pull-left image">
-            <img src="../gambar/sistem/user.png" class="img-circle" alt="User Image">
+            <?php 
+            $id_user = $_SESSION['id'];
+            $profil = mysqli_query($koneksi,"select * from siswa where siswa_id='$id_user'");
+            $profil = mysqli_fetch_assoc($profil);
+            ?>
+            <img src="../gambar/sistem/user.png" class="img-circle" style="height:45px; width: 45px;">
           </div>
           <div class="pull-left info">
-            <p><?php echo substr($_SESSION['nama'], 0, 15); ?>...</p>
+            <p><?php echo $profil['siswa_nama'] ?></p>
             <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
           </div>
         </div>
 
         <ul class="sidebar-menu" data-widget="tree">
-          <li class="header">MENU UTAMA</li>
+          <li class="header">MAIN NAVIGATION</li>
           
-          <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'active' : ''; ?>">
-            <a href="index.php"><i class="fa fa-dashboard"></i> <span>DASHBOARD</span></a>
-          </li>
+          <!-- Dashboard -->
+          <li><a href="index.php"><i class="fa fa-dashboard"></i> <span>DASHBOARD</span></a></li>
           
-          <li class="treeview <?php echo in_array(basename($_SERVER['PHP_SELF']), ['prestasi_saya.php', 'pelanggaran_saya.php']) ? 'active' : ''; ?>">
+          <!-- Data Saya -->
+          <li class="treeview">
             <a href="#">
-              <i class="fa fa-user"></i> <span>DATA SAYA</span>
-              <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+              <i class="fa fa-user"></i>
+              <span>DATA SAYA</span>
+              <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
             </a>
             <ul class="treeview-menu">
-              <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'prestasi_saya.php') ? 'active' : ''; ?>">
-                <a href="prestasi_saya.php"><i class="fa fa-trophy"></i> Prestasi Saya</a>
-              </li>
-              <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'pelanggaran_saya.php') ? 'active' : ''; ?>">
-                <a href="pelanggaran_saya.php"><i class="fa fa-warning"></i> Pelanggaran Saya</a>
-              </li>
+              <li><a href="prestasi_saya.php"><i class="fa fa-trophy"></i> Prestasi Saya</a></li>
+              <li><a href="pelanggaran_saya.php"><i class="fa fa-warning"></i> Pelanggaran Saya</a></li>
             </ul>
           </li>
-
-          <li class="treeview <?php echo in_array(basename($_SERVER['PHP_SELF']), ['prestasi.php', 'pelanggaran.php']) ? 'active' : ''; ?>">
+          
+          <!-- Lihat Data -->
+          <li class="treeview">
             <a href="#">
-              <i class="fa fa-eye"></i> <span>LIHAT DATA</span>
-              <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+              <i class="fa fa-eye"></i>
+              <span>LIHAT DATA</span>
+              <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
             </a>
             <ul class="treeview-menu">
               <li><a href="prestasi.php"><i class="fa fa-list-alt"></i> Data Prestasi</a></li>
               <li><a href="pelanggaran.php"><i class="fa fa-list-alt"></i> Data Pelanggaran</a></li>
             </ul>
           </li>
-
-          <li class="treeview <?php echo in_array(basename($_SERVER['PHP_SELF']), ['konseling_saya.php', 'konseling_ajukan.php']) ? 'active' : ''; ?>">
+          
+          <!-- Konseling -->
+          <li class="treeview">
             <a href="#">
-              <i class="fa fa-comments-o"></i> <span>KONSELING</span>
-              <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+              <i class="fa fa-heart"></i>
+              <span>KONSELING</span>
+              <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
             </a>
             <ul class="treeview-menu">
               <li><a href="konseling_saya.php"><i class="fa fa-list"></i> Konseling Saya</a></li>
               <li><a href="konseling_ajukan.php"><i class="fa fa-plus"></i> Ajukan Konseling</a></li>
             </ul>
           </li>
-
-          <li class="header">AKUN</li>
-          <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'profil.php') ? 'active' : ''; ?>">
-            <a href="profil.php"><i class="fa fa-user-circle"></i> <span>PROFIL</span></a>
+          
+          <!-- Layanan BK -->
+          <li class="treeview">
+            <a href="#">
+              <i class="fa fa-graduation-cap"></i>
+              <span>LAYANAN BK</span>
+              <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+            </a>
+            <ul class="treeview-menu">
+              <li><a href="layanan_bk_saya.php"><i class="fa fa-heart"></i> Layanan BK Saya</a></li>
+              <li><a href="layanan_bk_kalender.php"><i class="fa fa-calendar"></i> Kalender Layanan</a></li>
+              <li><a href="kunjungan_rumah_saya.php"><i class="fa fa-home"></i> Kunjungan Rumah</a></li>
+            </ul>
           </li>
-          <li class="<?php echo (basename($_SERVER['PHP_SELF']) == 'gantipassword.php') ? 'active' : ''; ?>">
-            <a href="gantipassword.php"><i class="fa fa-lock"></i> <span>GANTI PASSWORD</span></a>
-          </li>
-          <li>
-            <a href="logout.php"><i class="fa fa-sign-out text-red"></i> <span class="text-red">LOGOUT</span></a>
+          
+          <!-- Pengaturan -->
+          <li class="treeview">
+            <a href="#">
+              <i class="fa fa-cog"></i>
+              <span>PENGATURAN</span>
+              <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+            </a>
+            <ul class="treeview-menu">
+              <li><a href="profil.php"><i class="fa fa-user"></i> Profil Saya</a></li>
+              <li><a href="gantipassword.php"><i class="fa fa-lock"></i> Ganti Password</a></li>
+              <li><a href="logout.php"><i class="fa fa-sign-out"></i> Logout</a></li>
+            </ul>
           </li>
         </ul>
       </section>
