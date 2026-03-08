@@ -151,6 +151,27 @@ if(function_exists('getColorSettings')) {
     /* Saat sidebar-mini tapi tidak collapsed → tetap tampilkan besar */
     .sidebar-mini:not(.sidebar-collapse) .main-header .logo .logo-mini { display: none !important; }
     .sidebar-mini:not(.sidebar-collapse) .main-header .logo .logo-lg { display: inline-flex !important; }
+	
+	/* Fix User Panel agar tidak meluber saat sidebar mengecil */
+    .sidebar-mini.sidebar-collapse .user-panel {
+      display: none !important;
+    }
+
+    /* Memastikan foto profil tetap melingkar sempurna */
+    .user-panel > .image > img {
+      width: 45px !important;
+      height: 45px !important;
+      max-width: 45px !important;
+      max-height: 45px !important;
+      object-fit: cover; /* Mencegah foto gepeng */
+      border-radius: 50%;
+    }
+
+    /* Penyesuaian teks di samping foto */
+    .user-panel > .info {
+      padding: 5px 5px 5px 15px;
+      line-height: 1.2;
+    }
     
   </style>
 
