@@ -143,7 +143,7 @@ $(document).ready(function(){
         <?php endif; ?>
       }
     });
-  }, 5000);
+  }, 30000);
   
   // Update notifikasi segera setelah halaman dimuat
   setTimeout(function() {

@@ -75,6 +75,24 @@ $user_foto = (!empty($profil['user_foto'])) ?
     .sidebar-mini.sidebar-collapse .main-header .logo .logo-mini { display: inline-flex !important; }
     .sidebar-mini.sidebar-collapse .main-header .logo .logo-lg { display: none !important; }
     .user-image, .img-circle { object-fit: cover; }
+	/* Menghilangkan panel user saat sidebar mengecil agar tidak terpotong */
+	.sidebar-mini.sidebar-collapse .main-sidebar .user-panel {
+		display: none !important;
+	}
+
+	/* Memastikan foto profil di sidebar tetap bulat dan ukurannya terkunci */
+	.user-panel > .image > img {
+		width: 45px !important;
+		height: 45px !important;
+		max-width: 45px !important;
+		max-height: 45px !important;
+		object-fit: cover; /* Menjaga rasio foto agar tidak gepeng */
+	}
+
+	/* Mengatur jarak teks agar lebih rapi */
+	.user-panel > .info {
+		padding: 5px 5px 5px 15px;
+	}
   </style>
 </head>
 
@@ -158,15 +176,15 @@ $user_foto = (!empty($profil['user_foto'])) ?
 
     <aside class="main-sidebar">
       <section class="sidebar">
-        <div class="user-panel">
-          <div class="pull-left image">
-            <img src="<?php echo $user_foto; ?>" class="img-circle" style="height:45px; width:45px;">
-          </div>
-          <div class="pull-left info">
-            <p><?php echo htmlspecialchars($profil['user_nama'] ?? 'Admin'); ?></p>
-            <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
-          </div>
-        </div>
+		<div class="user-panel">
+		  <div class="pull-left image">
+			<img src="<?php echo $user_foto; ?>" class="img-circle" style="height:45px; width:45px; object-fit:cover;">
+		  </div>
+		  <div class="pull-left info">
+			<p><?php echo htmlspecialchars($profil['user_nama'] ?? 'Admin'); ?></p>
+			<a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+		  </div>
+		</div>
 
         <ul class="sidebar-menu" data-widget="tree">
           <li class="header">MAIN NAVIGATION</li>
@@ -219,9 +237,9 @@ $user_foto = (!empty($profil['user_foto'])) ?
               <li><a href="kasus_siswa_tambah.php"><i class="fa fa-plus"></i> Tambah Kasus Baru</a></li>
               <li><a href="kunjungan_rumah.php"><i class="fa fa-home"></i> Kunjungan Rumah</a></li>
               <li><a href="kunjungan_rumah_tambah.php"><i class="fa fa-plus-circle"></i> Tambah Kunjungan</a></li>
-              <li><a href="laporan_kunjungan_rumah.php"><i class="fa fa-chart-bar"></i> Laporan Kunjungan</a></li>
+              <li><a href="laporan_kunjungan_rumah.php"><i class="fa fa-file"></i> Laporan Kunjungan</a></li>
               <li><a href="notifikasi_rtl.php"><i class="fa fa-bell"></i> Notifikasi RTL</a></li>
-              <li><a href="laporan_kasus.php"><i class="fa fa-chart-line"></i> Laporan Kasus</a></li>
+              <li><a href="laporan_kasus.php"><i class="fa fa-file"></i> Laporan Kasus</a></li>
             </ul>
           </li>
           
@@ -238,7 +256,7 @@ $user_foto = (!empty($profil['user_foto'])) ?
               <li><a href="layanan_bk.php"><i class="fa fa-list"></i> Data Layanan BK</a></li>
               <li><a href="layanan_bk_tambah.php"><i class="fa fa-plus"></i> Tambah Layanan</a></li>
               <li><a href="layanan_bk_kalender.php"><i class="fa fa-calendar"></i> Kalender Layanan</a></li>
-              <li><a href="layanan_bk_laporan.php"><i class="fa fa-chart-bar"></i> Laporan Layanan</a></li>
+              <li><a href="layanan_bk_laporan.php"><i class="fa fa-file"></i> Laporan Layanan</a></li>
             </ul>
           </li>
           
