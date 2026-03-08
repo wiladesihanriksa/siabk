@@ -185,10 +185,80 @@ $user_foto = (!empty($profil['user_foto'])) ?
               <li><a href="user.php"><i class="fa fa-circle-o"></i> Admin</a></li>
             </ul>
           </li>
-
+          
+          <!-- Poin Siswa -->
           <li class="treeview">
-            <a href="#"><i class="fa fa-star"></i> <span>POIN SISWA</span>
-              <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+            <a href="#">
+              <i class="fa fa-star"></i>
+              <span>POIN SISWA</span>
+              <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
             </a>
             <ul class="treeview-menu">
-              <li><a
+              <li><a href="input_prestasi.php"><i class="fa fa-trophy"></i> Input Prestasi</a></li>
+              <li><a href="input_pelanggaran.php"><i class="fa fa-warning"></i> Input Pelanggaran</a></li>
+              <li><a href="prestasi.php"><i class="fa fa-list-alt"></i> Data Prestasi</a></li>
+              <li><a href="pelanggaran.php"><i class="fa fa-list-alt"></i> Data Pelanggaran</a></li>
+              <li><a href="laporan.php"><i class="fa fa-file"></i> Laporan Poin</a></li>
+              <li><a href="cetak_raport.php"><i class="fa fa-print"></i> Cetak Raport</a></li>
+            </ul>
+          </li>
+          
+          <!-- Konseling BK -->
+          <li class="treeview">
+            <a href="#">
+              <i class="fa fa-heart"></i>
+              <span>KONSELING BK</span>
+              <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+            </a>
+            <ul class="treeview-menu">
+              <li><a href="kasus_siswa.php"><i class="fa fa-folder-open"></i> Data Kasus Siswa</a></li>
+              <li><a href="kasus_siswa_tambah.php"><i class="fa fa-plus"></i> Tambah Kasus Baru</a></li>
+              <li><a href="kunjungan_rumah.php"><i class="fa fa-home"></i> Kunjungan Rumah</a></li>
+              <li><a href="kunjungan_rumah_tambah.php"><i class="fa fa-plus-circle"></i> Tambah Kunjungan</a></li>
+              <li><a href="laporan_kunjungan_rumah.php"><i class="fa fa-chart-bar"></i> Laporan Kunjungan</a></li>
+              <li><a href="notifikasi_rtl.php"><i class="fa fa-bell"></i> Notifikasi RTL</a></li>
+              <li><a href="laporan_kasus.php"><i class="fa fa-chart-line"></i> Laporan Kasus</a></li>
+            </ul>
+          </li>
+          
+          <!-- Layanan BK -->
+          <li class="treeview">
+            <a href="#">
+              <i class="fa fa-graduation-cap"></i>
+              <span>LAYANAN BK</span>
+              <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+            </a>
+            <ul class="treeview-menu">
+              <li><a href="layanan_bk.php"><i class="fa fa-list"></i> Data Layanan BK</a></li>
+              <li><a href="layanan_bk_tambah.php"><i class="fa fa-plus"></i> Tambah Layanan</a></li>
+              <li><a href="layanan_bk_kalender.php"><i class="fa fa-calendar"></i> Kalender Layanan</a></li>
+              <li><a href="layanan_bk_laporan.php"><i class="fa fa-chart-bar"></i> Laporan Layanan</a></li>
+            </ul>
+          </li>
+          
+          <!-- Pengaturan -->
+          <li class="treeview">
+            <a href="#">
+              <i class="fa fa-cog"></i>
+              <span>PENGATURAN</span>
+              <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+            </a>
+            <ul class="treeview-menu">
+              <li><a href="profil.php"><i class="fa fa-user"></i> Profil Saya</a></li>
+              <li><a href="pengaturan_aplikasi.php"><i class="fa fa-cogs"></i> Pengaturan Aplikasi</a></li>
+              <li><a href="gantipassword.php"><i class="fa fa-lock"></i> Ganti Password</a></li>
+              <li><a href="logout.php"><i class="fa fa-sign-out"></i> Logout</a></li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+      <!-- /.sidebar -->
+    </aside>

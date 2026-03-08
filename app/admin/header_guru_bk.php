@@ -2,8 +2,6 @@
 // =====================================================
 // HEADER GURU BK - 2025
 // =====================================================
-// File ini untuk header khusus guru BK dengan menu terbatas
-// =====================================================
 
 include '../koneksi.php';
 include '../functions_app_settings.php';
@@ -16,25 +14,26 @@ if(!isset($_SESSION)) {
 
 // Cek session dengan aman - khusus untuk guru BK
 if(!isset($_SESSION['level']) || $_SESSION['level'] != "guru_bk"){
-  header("location:../admin.php?alert=belum_login");
-  exit();
+    header("location:../admin.php?alert=belum_login");
+    exit();
 }
 
-// Auto-check access untuk membatasi halaman yang bisa diakses guru BK
+// --- TAMBAHKAN BLOK INI UNTUK MEMPERBAIKI ERROR $profil ---
+$id_user = $_SESSION['id'];
+$profil_query = mysqli_query($koneksi, "SELECT * FROM user WHERE user_id='$id_user'");
+$profil = mysqli_fetch_assoc($profil_query);
+// -----------------------------------------------------------
+
+// Auto-check access
 checkGuruBkAccess();
 
-// Cek apakah ada redirect yang dilakukan oleh checkGuruBkAccess()
-// Jika ada redirect, jangan lanjutkan eksekusi
 if(isset($_SESSION['error_message'])) {
-    // Redirect sudah dilakukan, jangan output HTML
     return;
 }
 
-// Ambil pengaturan aplikasi
 $app_settings = array();
 $color_settings = array();
 
-// Cek apakah fungsi ada sebelum dipanggil
 if(function_exists('getAppSettings')) {
     $app_settings = getAppSettings($koneksi);
 }
