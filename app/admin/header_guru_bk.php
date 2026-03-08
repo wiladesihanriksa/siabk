@@ -8,9 +8,6 @@ include '../functions_app_settings.php';
 include '../functions_color_settings.php';
 include 'check_guru_bk_access.php';
 
-<?php 
-// ... (include koneksi dan session tetap sama) ...
-
 // 1. Ambil data profil & definisikan foto profil SEKALI saja di atas
 $id_user = $_SESSION['id'];
 $profil_query = mysqli_query($koneksi, "SELECT * FROM user WHERE user_id='$id_user'");
